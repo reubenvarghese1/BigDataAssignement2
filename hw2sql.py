@@ -86,6 +86,7 @@ if __name__ == "__main__":
     query = "select E.attr1 , E.val1 ,E.attr2, E.val2, V.attr as attr3,V.val as val3, V.SUPPORTSPECIFIC as supp,CAST(((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) AS FLOAT) as  conf from UI E inner join UIS V ON (E.attr1=V.attr1 and E.val1=V.val1 and E.attr2=V.attr2 and E.val2=V.val2) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) > " + str(conf) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, V.attr, V.val";
     R3 = spark.sql(query)
     R3.createOrReplaceTempView("R3")
+    R3.show()
 
     # MORE OF YOUR SparkSQL CODE GOES HERE
 
