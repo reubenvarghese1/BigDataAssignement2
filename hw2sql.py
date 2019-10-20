@@ -64,7 +64,7 @@ if __name__ == "__main__":
     F2.createOrReplaceTempView("F2")
 
 
-    query ="select V.attr1 , V.val1 ,V.attr2, V.val2, V.SUPPORTSPECIFIC as supp,((V.SUPPORTSPECIFIC * 1.0)/E.supp) as  conf from F1 E inner join F2 V ON (E.attr=V.attr1 and E.val=V.val1) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.supp) > " + str(conf) + " ORDER BY V.attr1, V.val1, V.attr2 ,V.val2";
+    query ="select V.attr1 , V.val1 ,V.attr2, V.val2, V.SUPPORTSPECIFIC as supp,CAST(((V.SUPPORTSPECIFIC * 1.0)/E.supp) AS FLOAT) as  conf from F1 E inner join F2 V ON (E.attr=V.attr1 and E.val=V.val1) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.supp) > " + str(conf) + " ORDER BY V.attr1, V.val1, V.attr2 ,V.val2";
     R2 = spark.sql(query)
     R2.createOrReplaceTempView("R2")
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
 
 
-    query = "select E.attr1 , E.val1 ,E.attr2, E.val2, V.attr as attr3,V.val as val3, V.SUPPORTSPECIFIC as supp,((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) as  conf from UI E inner join UIS V ON (E.attr1=V.attr1 and E.val1=V.val1 and E.attr2=V.attr2 and E.val2=V.val2) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) > " + str(conf) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, V.attr, V.val";
+    query = "select E.attr1 , E.val1 ,E.attr2, E.val2, V.attr as attr3,V.val as val3, V.SUPPORTSPECIFIC as supp,CAST(((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) AS FLOAT) as  conf from UI E inner join UIS V ON (E.attr1=V.attr1 and E.val1=V.val1 and E.attr2=V.attr2 and E.val2=V.val2) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) > " + str(conf) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, V.attr, V.val";
     
     R3 = spark.sql(query)
     R3.createOrReplaceTempView("R3")
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Compute PD_R3, as described in the homework specification
     # PD_R3(attr1, val1, attr2, val2, attr3, val3, supp, conf, prot)
-    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr3,E.val3, E.supp, E.conf, round(((E.conf * 1.0)/U.conf),2) as prot from R3 E,R2 U,R2 V WHERE (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( CASE WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) END ) AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr3, E.val3";
+    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr3,E.val3, E.supp, E.conf, CAST(round(((E.conf * 1.0)/U.conf),2) AS FLOAT) as prot from R3 E,R2 U,R2 V WHERE (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( CASE WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) END ) AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr3, E.val3";
 
     PD_R3 = spark.sql(query)
     PD_R3.createOrReplaceTempView("PD_R3")
