@@ -59,19 +59,12 @@ if __name__ == "__main__":
     # Compute R2, as described in the homework specification
     # R2(attr1, val1, attr2, val2, supp, conf)
 
-    queryo = " SELECT * FROM (select iter.attr as attr1, iter.val as val1, vdectable.attr as attr2, vdectable.val as val2, count(*) as supportspecific \
-    FROM (select uid, attr, val from Pro_Publica where attr<>'vdecile') iter LEFT JOIN (SELECT * FROM Pro_Publica WHERE attr='vdecile') vdectable where iter.uid=vdectable.uid \ 
-    GROUP BY iter.attr, iter.val, vdectable.attr, vdectable.val) \ 
-    inti WHERE inti.supportspecific>500"
+    queryo = "SELECT * FROM (select iter.attr as attr1, iter.val as val1, vdectable.attr as attr2, vdectable.val as val2, count(*) as supportspecific FROM (select uid, attr, val from Pro_Publica where attr<>'vdecile') iter LEFT JOIN (SELECT * FROM Pro_Publica WHERE attr='vdecile') vdectable where iter.uid=vdectable.uid GROUP BY iter.attr, iter.val, vdectable.attr, vdectable.val) inti WHERE inti.supportspecific>500"
     F2 = spark.sql(queryo);
     F2.createOrReplaceTempView("F2")
 
 
-    query ="select V.attr1 , V.val1 ,V.attr2, V.val2, V.SUPPORTSPECIFIC as support, \
-    ((V.SUPPORTSPECIFIC * 1.0)/E.supp) as  conf from F1 E \
-    inner join F2 V \
-    ON (E.attr=V.attr1 and \
-    E.val=V.val1) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.supp) > " + str(conf) + " ORDER BY V.attr1, V.val1, V.attr2 ,V.val2";
+    query ="select V.attr1 , V.val1 ,V.attr2, V.val2, V.SUPPORTSPECIFIC as support,((V.SUPPORTSPECIFIC * 1.0)/E.supp) as  conf from F1 E inner join F2 V ON (E.attr=V.attr1 and E.val=V.val1) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.supp) > " + str(conf) + " ORDER BY V.attr1, V.val1, V.attr2 ,V.val2";
     R2 = spark.sql(query)
     R2.createOrReplaceTempView("R2")
 
@@ -92,13 +85,7 @@ if __name__ == "__main__":
 
 
 
-    query = "select E.attr1 , E.val1 ,E.attr2, E.val2, V.attr,V.val, V.SUPPORTSPECIFIC as support, \
-    ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) as  conf from UI E \
-    inner join UIS V \
-    ON (E.attr1=V.attr1 and \
-    E.val1=V.val1 and \
-    E.attr2=V.attr2 and \
-    E.val2=V.val2) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) > " + str(conf) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, V.attr, V.val";
+    query = "select E.attr1 , E.val1 ,E.attr2, E.val2, V.attr,V.val, V.SUPPORTSPECIFIC as support,((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) as  conf from UI E inner join UIS V ON (E.attr1=V.attr1 and E.val1=V.val1 and E.attr2=V.attr2 and E.val2=V.val2) WHERE (V.SUPPORTSPECIFIC >" + str(supp) + ") and ((V.SUPPORTSPECIFIC * 1.0)/E.SUPPORTPARTIAL) > " + str(conf) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, V.attr, V.val";
     
     R3 = spark.sql(query)
     R3.createOrReplaceTempView("R3")
@@ -107,14 +94,8 @@ if __name__ == "__main__":
 
     # Compute PD_R3, as described in the homework specification
     # PD_R3(attr1, val1, attr2, val2, attr3, val3, supp, conf, prot)
-    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr,E.val, E.support, E.conf, round(((E.conf * 1.0)/U.conf),2) as prot from R3 E,R2 U,R2 V WHERE \
-    (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( \
-    CASE \
-    WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) \
-    WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) \
-    END ) \
-    AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr, E.val";
-    
+    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr,E.val, E.support, E.conf, round(((E.conf * 1.0)/U.conf),2) as prot from R3 E,R2 U,R2 V WHERE (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( CASE WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) END ) AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr, E.val";
+
     PD_R3 = spark.sql(query)
     PD_R3.createOrReplaceTempView("PD_R3")
 
