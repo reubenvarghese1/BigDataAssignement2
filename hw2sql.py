@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     # Compute PD_R3, as described in the homework specification
     # PD_R3(attr1, val1, attr2, val2, attr3, val3, supp, conf, prot)
-    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr,E.val, E.supp, E.conf, round(((E.conf * 1.0)/U.conf),2) as prot from R3 E,R2 U,R2 V WHERE (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( CASE WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) END ) AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr, E.val";
+    query = "SELECT Distinct E.attr1 , E.val1 ,E.attr2, E.val2, E.attr3,E.val3, E.supp, E.conf, round(((E.conf * 1.0)/U.conf),2) as prot from R3 E,R2 U,R2 V WHERE (V.attr1=E.attr2 OR V.attr1=E.attr1) AND V.attr1='race' AND ( CASE WHEN E.attr2='race' THEN (E.attr1=U.attr1 AND E.val1=U.val1) WHEN E.attr1='race' THEN (E.attr2=U.attr2 AND E.val2=U.val2) END ) AND ((E.conf * 1.0)/U.conf)>"+ str(prot) + " ORDER BY E.attr1, E.val1, E.attr2 ,E.val2, E.attr3, E.val3";
 
     PD_R3 = spark.sql(query)
     PD_R3.createOrReplaceTempView("PD_R3")
